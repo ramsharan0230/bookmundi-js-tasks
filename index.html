@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks</title>
+    <style>
+        .firstDivClAppended{
+            color: red;
+        }
+
+        .firstDivCl{
+            color: green;
+            width: 100%; 
+            height: auto; 
+            border: 2px solid black;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="myFirstClass">
+        <h1>Hello world</h1>
+        <div class="my-class-another">
+            <p>Another Hello world</p>
+        </div>
+    </div>
+
+    <div class="firstDivCl" id="firstDivId" style="width: 100%; height: auto; border: 2px solid black;">
+        <h1>Hello there</h1>
+    </div>
+
+    <div id="todo-list"></div>
+
+    <form >
+        <input type="text" name="first_name" id="first_name" class="first_name" value="Hello Bookmundi" placeholder="First Name">
+        <input type="checkbox" id="my-checkbox" checked>
+
+        
+        <select name="select1" id="select1">
+            <option value="a">A</option>
+            <option value="b" selected>B</option>
+            <option value="c">C</option>
+        </select>
+
+        <!-- Bard -->
+        <select name="select2" id="select2">
+            <option value="d">D</option>
+            <option value="e">E</option>
+            <option value="f">F</option>
+        </select>
+
+        <br>
+        <!-- data binding -->
+        <input type="text" id="my-input">
+    </form>
+ <hr>
+ <!-- clip board example -->
+ <span id="copyText">Text to copy</span>
+ <button id="copyButton">Copy</button>
+
+    <script src="../js-tasks/js/main.js"></script>
+    <script>
+        // 1. a. change class name
+        setTimeout(() => {
+            $.removeClassById('firstDivId', 'firstDivCl');
+        }, "3000");
+
+        $.addClassById('firstDivId', 'firstDivClAppended');
+
+        // 1.b get dom element's dataset
+        var dataValues = $.getDataAttributes('.myFirstClass');
+        console.log(dataValues);
+
+        // 1.c Inject new element into dom
+        var newElement = document.createElement('p');
+        var newText = document.createTextNode('Hello, Bookmundi!');
+        newElement.appendChild(newText);
+        document.body.appendChild(newElement);
+
+        // 1.d Ajax request
+        $.ajax({
+            method: 'GET',
+            url: 'https://jsonplaceholder.typicode.com/todos?_limit=5',
+            success: function(response) {
+                var data = JSON.parse(response);
+
+                var responseContainer = document.getElementById('response-container');
+                for (var i = 0; i < data.length; i++) {
+                    var list = document.createElement('ul');
+                    for (var i = 0; i < data.length; i++) {
+                    var item = document.createElement('li');
+                    var text = document.createTextNode(data[i].title);
+                    item.appendChild(text);
+                    list.appendChild(item);
+                    }
+                    var container = document.getElementById('todo-list');
+                    container.appendChild(list);
+                }
+            },
+            error: function(error) {
+                console.error(error);
+            }
+        });
+        
+        //1.e get and set different input elements(input box/checkbox/select dropdown)
+        // get input value
+        var inputElement = document.getElementById('first_name');
+        var inputValue = inputElement.value+" Modified";
+        // set input
+        inputElement.value = inputValue;
+        inputElement.dispatchEvent(new Event('input'));
+
+        // checkbox
+        var checkbox = document.getElementById('my-checkbox');
+        var selectedValue = checkbox.checked ? checkbox.value : '';
+        console.log("selected:", selectedValue);
+
+        var checkbox = document.getElementById('my-checkbox');
+        checkbox.checked = false; 
+
+        // select
+        var selectElement = document.getElementById('select1');
+        var selectedValue = selectElement.value;
+        console.log(selectedValue)
+
+        var selectElement = document.getElementById('select2');
+        selectElement.value = 'f';
+
+        // 2. Post requests
+        const urls = [
+            'https://jsonplaceholder.typicode.com/posts/1',
+            'https://jsonplaceholder.typicode.com/posts/2',
+            'https://jsonplaceholder.typicode.com/posts/3'
+        ];
+
+        // use map() to create an array of Promises
+        const promises = urls.map(url => fetch(url));
+
+        // use Promise.all() to wait for all Promises to complete
+        Promise.all(promises)
+        .then(responses => {
+            // handle each response separately
+            for (let response of responses) {
+            console.log(response);
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        });
+        
+
+        // 3. clip board example
+        const copyButton = document.getElementById("copyButton");
+        const copyText = document.getElementById("copyText");
+
+        copyButton.addEventListener("click", () => {
+        navigator.clipboard.writeText(copyText.textContent)
+            .then(() => {
+            console.log("Text copied to clipboard");
+            })
+            .catch((err) => {
+            console.error("Error copying text to clipboard: ", err);
+            });
+        });
+
+
+        // 4. data binding
+        var myInput = document.getElementById('my-input');
+  
+        // Define a data model object
+        var dataModel = new Proxy({ myValue: '' }, {
+            set: function(obj, prop, value) {
+                obj[prop] = value;
+                myInput.value = value;
+                return true;
+            }
+        });
+        
+        // Add an event listener to the input element
+        myInput.addEventListener('input', function() {
+            console.log("ere", myInput.value)
+            dataModel.myValue = myInput.value;
+        });
+
+        
+    </script>
+</body>
+</html>
